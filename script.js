@@ -155,6 +155,7 @@ function navigateTo(viewName) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelector('.nav-item[data-view="' + viewName + '"]').classList.add('active');
   if (viewName === 'dashboard') updateDashboard();
+  if (viewName === 'theory') loadTheory();
 }
 
 // ============================================
@@ -321,6 +322,18 @@ function filterPhase(phase) {
 // ============================================
 // INITIALIZATION
 // ============================================
+
+// ============================================
+// THEORY
+// ============================================
+async function loadTheory() {
+    const topic = THEORY[0];
+
+    document.getElementById("theory-content").innerHTML =
+        topic.content;
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
   renderRoster();
   loadProgress();
