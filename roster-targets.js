@@ -1,0 +1,31 @@
+// PainMed Pro — weekly target tracker
+(function(){
+const targetMap={
+1:['Complete pain history framework revision','Practice 3 focused pain histories','Complete one timed 15-minute assessment'],
+2:['Classify nociceptive, neuropathic and nociplastic pain','Revise central sensitization + biopsychosocial model','Practice ICD-11 chronic pain classification'],
+3:['Revise indications for MRI/CT/EMG/NCV','Practice imaging–pain correlation','Review investigations and avoid over-investigation'],
+4:['Revise common musculoskeletal pain syndromes','Practice examination of knee/hip/spine and myofascial pain','Review basic exercise-prescription principles'],
+5:['Revise major neuropathic pain conditions','Practice DN4/LANSS/painDETECT screening','Build a radiculopathy/neuropathy assessment approach'],
+6:['Revise migraine, tension-type and cluster headache','Review medication-overuse headache','Practice facial pain/TMJ assessment'],
+7:['Revise fibromyalgia, CRPS and chronic primary pain','Review chronic pelvic pain approach','Practice activity-pacing and functional assessment'],
+8:['Revise WHO cancer-pain framework','Review breakthrough pain and opioid rotation','Identify indications for palliative-care referral'],
+9:['Revise paracetamol and NSAID dosing/safety','Practice GI/renal/cardiac risk assessment','Review topical analgesics and perioperative NSAID considerations'],
+10:['Revise opioid pharmacology and equianalgesic principles','Practice opioid risk assessment and monitoring','Review tapering, OIH and urine-drug screening principles'],
+11:['Revise TCAs, SNRIs and gabapentinoids','Review muscle relaxants and ketamine principles','Build an adjuvant-analgesic selection approach'],
+12:['Review pain management in older adults','Revise pregnancy/lactation considerations','Practice renal/hepatic dose-adjustment principles'],
+13:['Revise exercise, CBT/ACT and TENS principles','Review sleep–pain relationship','Identify appropriate multidisciplinary referrals'],
+14:['Revise trigger-point, joint and bursal injections','Review basic peripheral nerve-block principles','Identify procedures requiring specialist referral'],
+15:['Practice a complete pain-clinic SOAP note','Review informed consent and opioid agreements','Revise documentation, disability and telemedicine principles'],
+16:['Revise failed-back-surgery syndrome and complex pain','Review SCS/intrathecal-pump indications','Complete final board-style review and referral framework']
+};
+const KEY='painmed_week_targets_v1';
+function getState(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}}
+function setState(s){localStorage.setItem(KEY,JSON.stringify(s))}
+function esc(s){return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
+function progressFor(w){const s=getState()[w]||[];return [0,1,2].filter(i=>s.includes(i)).length}
+function targetMarkup(w){const state=getState();const checked=state[w]||[];const items=targetMap[w]||['Review the week theory','Complete a clinical/practical exercise','Do a self-assessment'];return `<div class="week-targets" data-week-targets="${w}"><div class="week-target-head"><div><strong>🎯 Weekly Targets</strong><div class="week-target-sub">Tap each target when completed</div></div><span class="week-target-count" id="target-count-${w}">${progressFor(w)}/3</span></div><div class="week-target-list">${items.map((t,i)=>`<label class="week-target"><input type="checkbox" data-target-week="${w}" data-target-index="${i}" ${checked.includes(i)?'checked':''}><span class="target-check">✓</span><span>${esc(t)}</span></label>`).join('')}</div><div class="target-progress"><span id="target-progress-fill-${w}" style="width:${Math.round(progressFor(w)/3*100)}%"></span></div></div>`}
+function bind(){document.querySelectorAll('[data-target-week]').forEach(cb=>{cb.addEventListener('change',function(){const w=this.dataset.targetWeek,i=Number(this.dataset.targetIndex),s=getState();s[w]=s[w]||[];if(this.checked&&!s[w].includes(i))s[w].push(i);if(!this.checked)s[w]=s[w].filter(x=>x!==i);setState(s);const n=progressFor(w),c=document.getElementById('target-count-'+w),f=document.getElementById('target-progress-fill-'+w);if(c)c.textContent=n+'/3';if(f)f.style.width=Math.round(n/3*100)+'%';});});}
+function inject(){const original=window.renderRoster;if(typeof original!=='function'||!window.weeksData)return false;window.renderRoster=function(){original();document.querySelectorAll('.week-content').forEach((el)=>{const card=el.closest('.week-card');if(!card||el.querySelector('.week-targets'))return;const w=Number(card.id.replace('week-card-',''));el.insertAdjacentHTML('beforeend',targetMarkup(w));});bind();};window.renderRoster();return true}
+function init(){if(inject())return;setTimeout(init,150)}
+const style=document.createElement('style');style.textContent='.week-targets{margin-top:14px;padding:12px;background:#f8fafc;border:1px solid #dbe5ef;border-radius:12px}.week-target-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;color:#1e3a5f;font-size:13px}.week-target-sub{font-size:10.5px;color:#64748b;font-weight:400;margin-top:2px}.week-target-count{font-size:11px;font-weight:800;background:#e8f1fa;color:#1e3a5f;border-radius:999px;padding:5px 9px;white-space:nowrap}.week-target-list{display:grid;gap:7px}.week-target{display:flex;align-items:flex-start;gap:9px;padding:9px;border-radius:9px;background:#fff;border:1px solid #e2e8f0;font-size:11.5px;line-height:1.45;color:#334155;cursor:pointer;min-height:42px}.week-target input{position:absolute;opacity:0;pointer-events:none}.target-check{width:19px;height:19px;border:1.5px solid #94a3b8;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 19px;color:transparent;font-size:12px;font-weight:800}.week-target input:checked + .target-check{background:#1e3a5f;border-color:#1e3a5f;color:#fff}.week-target input:checked ~ span:last-child{text-decoration:line-through;color:#64748b}.target-progress{height:5px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:9px}.target-progress span{display:block;height:100%;background:#4a90c2;border-radius:999px;transition:width .2s ease}@media(max-width:420px){.week-target{font-size:11px}}';document.head.appendChild(style);init();
+})();
