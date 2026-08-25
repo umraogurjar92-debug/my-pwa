@@ -6,9 +6,7 @@
     <title>Pain Procedures - PainMed Pro</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -33,9 +31,7 @@
             opacity: 0.85;
         }
 
-        .container {
-            padding: 24px 20px;
-        }
+        .container { padding: 24px 20px; }
 
         .search {
             width: 100%;
@@ -58,11 +54,20 @@
         .procedure-card {
             background: white;
             border-radius: 16px;
-            padding: 18px;
+            padding: 16px;
             margin-bottom: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
+
+        .procedure-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .procedure-info.clickable { cursor: pointer; }
 
         .procedure-card h3 {
             margin: 0 0 6px;
@@ -75,12 +80,45 @@
             font-size: 14px;
         }
 
+        .youtube-button {
+            flex: 0 0 auto;
+            min-width: 76px;
+            height: 42px;
+            padding: 0 10px;
+            border-radius: 12px;
+            background: #ff0000;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        .youtube-icon { font-size: 13px; }
+
         .back {
             display: inline-block;
             margin-bottom: 18px;
             color: white;
             text-decoration: none;
             font-weight: 600;
+        }
+
+        #no-results {
+            display: none;
+            text-align: center;
+            color: #718096;
+            padding: 30px 10px;
+        }
+
+        @media (max-width: 480px) {
+            .procedure-card { padding: 14px; }
+            .youtube-button { min-width: 44px; width: 44px; padding: 0; }
+            .youtube-label { display: none; }
         }
     </style>
 </head>
@@ -100,83 +138,17 @@
             id="search"
             class="search"
             placeholder="Search procedures..."
-            oninput="searchProcedures()"
+            aria-label="Search pain procedures"
         >
 
         <div class="section-title">Procedures</div>
 
-        <div id="procedure-list">
-
-            <div class="procedure-card">
-                <div class="procedure-card" onclick="window.location.href='epidural-steroid-injection.html'">
-                <p>Interventional procedure for radicular and spinal pain</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Medial Branch Block</h3>
-                <p>Diagnostic block for facet-mediated spinal pain</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Facet Joint Injection</h3>
-                <p>Injection for suspected facet-mediated pain</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Radiofrequency Ablation</h3>
-                <p>Denervation procedure for selected chronic pain</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Sacroiliac Joint Injection</h3>
-                <p>Diagnostic and therapeutic SI joint procedure</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Genicular Nerve Block</h3>
-                <p>Procedure used in chronic knee pain</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Genicular Nerve RFA</h3>
-                <p>Radiofrequency treatment for selected knee pain</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Stellate Ganglion Block</h3>
-                <p>Sympathetic block for selected pain conditions</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Celiac Plexus Block</h3>
-                <p>Intervention for selected upper abdominal pain</p>
-            </div>
-
-            <div class="procedure-card">
-                <h3>Ganglion Impar Block</h3>
-                <p>Intervention for selected pelvic and perineal pain</p>
-            </div>
-
-        </div>
+        <div id="procedure-list"></div>
+        <div id="no-results">No procedures found.</div>
 
     </div>
 
-    <script>
-        function searchProcedures() {
-            const search = document.getElementById("search").value.toLowerCase();
-            const cards = document.querySelectorAll(".procedure-card");
-
-            cards.forEach(card => {
-                const text = card.innerText.toLowerCase();
-
-                if (text.includes(search)) {
-                    card.style.display = "block";
-                } else {
-                    card.style.display = "none";
-                }
-            });
-        }
-    </script>
+    <script src="procedures.js"></script>
 
 </body>
 </html>
