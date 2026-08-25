@@ -35,37 +35,34 @@ function toggleWeek(weekNum){document.getElementById('content-'+weekNum).classLi
 function filterPhase(phase){document.querySelectorAll('.phase-tab').forEach(btn=>btn.classList.toggle('active',btn.dataset.phase===phase));document.querySelectorAll('.week-card').forEach(card=>card.style.display=(phase==='all'||card.dataset.phase===phase)?'block':'none');}
 
 // ============================================
-// THEORY
-// Fetch latest theory and the separate drug reference with cache busting.
+// THEORY + PROCEDURE REFERENCE
 // ============================================
-let latestTheory=null;
-async function fetchTheoryObject(){
-  const response=await fetch('theory-data.js?v='+Date.now(),{cache:'no-store'});
-  if(!response.ok)throw new Error('Theory file could not be loaded');
-  const source=await response.text();
-  const result=new Function(source+'\n;return THEORY;')();
-  if(!result||!result.length)throw new Error('Theory data is empty');
-  return result;
-}
-async function fetchDrugReference(){
-  const response=await fetch('pain-drugs.js?v='+Date.now(),{cache:'no-store'});
-  if(!response.ok)throw new Error('Drug reference could not be loaded');
-  const source=await response.text();
-  const result=new Function(source+'\n;return PAIN_DRUG_REFERENCE;')();
-  if(!result)throw new Error('Drug reference is empty');
-  return result;
-}
+let latestTheory = null;
 async function loadTheory(){
   const target=document.getElementById('theory-content');
   if(!target)return;
-  target.innerHTML='<div style="padding:20px;text-align:center;color:#64748b">Loading updated theory & drug reference…</div>';
+  target.innerHTML='<div style="padding:20px;text-align:center;color:#64748b">Loading updated theory…</div>';
   try{
-    const [theory,drugs]=await Promise.all([fetchTheoryObject(),fetchDrugReference()]);
-    latestTheory=theory;
-    target.innerHTML=latestTheory[0].content+drugs;
+    const version=Date.now();
+    const theoryResponse=await fetch('theory-data.js?v='+version,{cache:'no-store'});
+    if(!theoryResponse.ok)throw new Error('Theory file could not be loaded');
+    const theorySource=await theoryResponse.text();
+    latestTheory=new Function(theorySource+'\n;return THEORY;')();
+    if(!latestTheory||!latestTheory.length)throw new Error('Theory data is empty');
+
+    let reference='';
+    try{
+      const refResponse=await fetch('procedure-reference.js?v='+version,{cache:'no-store'});
+      if(refResponse.ok){
+        const refSource=await refResponse.text();
+        reference=new Function(refSource+'\n;return PROCEDURE_REFERENCE;')();
+      }
+    }catch(e){console.warn('Procedure reference unavailable',e);}
+
+    target.innerHTML=latestTheory[0].content+(reference||'');
   }catch(error){
     console.error('Theory update failed:',error);
-    if(typeof THEORY!=='undefined'&&THEORY.length){target.innerHTML=THEORY[0].content+(typeof PAIN_DRUG_REFERENCE!=='undefined'?PAIN_DRUG_REFERENCE:'');}
+    if(typeof THEORY!=='undefined'&&THEORY.length){target.innerHTML=THEORY[0].content;}
     else target.innerHTML='<div style="padding:20px">Unable to load Theory. Please reconnect and reopen the Theory tab.</div>';
   }
 }
